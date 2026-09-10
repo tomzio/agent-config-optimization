@@ -1,0 +1,12 @@
+# 本地凭证 / 认证文件，永不提交
+auth.json
+.env
+.env.*
+*.key
+*.pem
+
+# 备份与临时文件
+*.bak
+*.tmp
+.DS_Store
+__pycache__/

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "coding-plan/ark-code-latest",
+  "provider": {
+    "coding-plan": {
+      "name": "Volcano Engine (Coding Plan)",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "apiKey": "ark-xxx",
+        "baseURL": "https://ark.cn-beijing.volces.com/api/coding/v3",
+        "proxy": "http://127.0.0.1:7890"  // 代理配置（HTTP/HTTPS/SOCKS5）
+      }
+    },
+    "deepseek": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.deepseek.com/v1",
+        "setCacheKey": true,
+        "proxy": "http://127.0.0.1:7890"
+      }
+    },
+    "zhipuai": {
+      "whitelist": [
+        "glm-5.3",
+        "glm-5.3-flash",
+        "glm-5.2",
+        "glm-4.7",
+        "glm-4.7-flash",
+        "glm-4.7-flashx"
+      ],
+      "options": {
+        "proxy": "http://127.0.0.1:7890"
+      }
+    },
+    "opencode": {
+      "options": {
+        "proxy": "http://127.0.0.1:7890"
+      }
+    }
+  }
+}

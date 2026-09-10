@@ -1,0 +1,233 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "~/.config/opencode/instructions-zh.md"
+  ],
+  "mcp": {
+    "context7": {
+      "enabled": true,
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "pencil": {
+      "command": [
+        "/Applications/Pen.app/Contents/Resources/app.asar.unpacked/out/mcp-server-darwin-arm64",
+        "--app",
+        "desktop",
+        "--agent",
+        "openCodeCLI"
+      ],
+      "enabled": true,
+      "type": "local"
+    }
+  },
+  "model": "coding-plan/ark-code-latest",
+  "plugin": [
+    "superpowers",
+    "oh-my-openagent@latest",
+    "@tarquinen/opencode-dcp@latest"
+  ],
+  "provider": {
+    "coding-plan": {
+      "models": {
+        "ark-code-latest": {
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "ark-code-latest (auto-route)"
+        },
+        "deepseek-v4-flash": {
+          "limit": {
+            "context": 1048576,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "deepseek-v4-flash"
+        },
+        "deepseek-v4-pro": {
+          "limit": {
+            "context": 1048576,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "deepseek-v4-pro"
+        },
+        "doubao-seed-2-1-turbo": {
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "doubao-seed-2-1-turbo"
+        },
+        "doubao-seed-2.0-lite": {
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video",
+              "audio"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "doubao-seed-2.0-lite"
+        },
+        "doubao-seed-evolving": {
+          "limit": {
+            "context": 1048576,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image",
+              "video"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "doubao-seed-evolving"
+        },
+        "glm-5.2": {
+          "limit": {
+            "context": 1048576,
+            "output": 32768
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "glm-5.2"
+        },
+        "glm-5.3": {
+          "limit": {
+            "context": 1048576,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "glm-5.3"
+        },
+        "kimi-k2.7-code": {
+          "limit": {
+            "context": 262144,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "kimi-k2.7-code"
+        },
+        "minimax-m3": {
+          "limit": {
+            "context": 1000000,
+            "output": 131072
+          },
+          "modalities": {
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "name": "minimax-m3"
+        }
+      },
+      "name": "Volcano Engine (Coding Plan)",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "apiKey": "{env:ARK_API_KEY}",
+        "baseURL": "https://ark.cn-beijing.volces.com/api/coding/v3"
+      }
+    },
+    "deepseek": {
+      "models": {
+        "deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash",
+          "limit": {
+            "context": 1000000,
+            "output": 65536
+          }
+        },
+        "deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro",
+          "limit": {
+            "context": 1000000,
+            "output": 65536
+          }
+        }
+      },
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.deepseek.com/v1",
+        "setCacheKey": true
+      }
+    },
+    "zhipuai": {
+      "whitelist": [
+        "glm-5.3",
+        "glm-5.3-flash",
+        "glm-5.2",
+        "glm-4.7",
+        "glm-4.7-flash",
+        "glm-4.7-flashx"
+      ]
+    }
+  },
+  "small_model": "opencode/ling-3.0-flash-fin-free"
+}

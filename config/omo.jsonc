@@ -1,0 +1,177 @@
+// Scheme 2: 按角色能力分层的模型路由 —— 核心角色走套餐，其余按成本/能力匹配
+//
+// 主模型分配：
+//   核心执行  sisyphus    → coding-plan/glm-5.3         （通用旗舰，套餐内）
+//             hephaestus  → coding-plan/kimi-k2.7-code （代码特化，套餐内）
+//   高推理    oracle / ultrabrain / deep / metis / momus
+//             → opencode 免费旗舰（nemotron-3-ultra-free、big-pickle）
+//   高频轻量  librarian / explore / quick / unspecified-low / sisyphus-junior
+//             → 免费 flash（ling-3.0-flash-fin-free、nemotron-3.5-lightning-free）
+//   规划创作  prometheus / atlas / artistry / writing / unspecified-high
+//             → deepseek/deepseek-v4.1-flash-expires-on-0910（限时免费）
+//   多模态    multimodal-looker / visual-engineering → opencode/mimo-v2.5-free
+//
+// fallback 链：opencode 免费 → zhipuai GLM 按量 → deepseek-v4-flash 按量兜底
+//
+// 模型约束（以 `opencode models` 实际目录为准）：
+//   · 仅 deepseek-v4-flash、zhipuai/glm-5.x、ling-3.0-flash 等支持 variant；
+//     coding-plan/* 与多数免费模型不支持，不可配置
+//   · deepseek-v4-pro 于 2026-09-14 下线（届时自动路由 v4.1-flash），不引用
+//   · muse-spark-contributor 系列国内不可访问，不使用
+{
+  "[opencode]": {
+    "agents": {
+      "sisyphus": {
+        "model": "coding-plan/glm-5.3",
+        "fallback_models": [
+          { "model": "opencode/big-pickle" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" }
+        ]
+      },
+      "hephaestus": {
+        "model": "coding-plan/kimi-k2.7-code",
+        "fallback_models": [
+          { "model": "opencode/big-pickle" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "zhipuai/glm-5.3", "variant": "high" }
+        ]
+      },
+      "oracle": {
+        "model": "opencode/nemotron-3-ultra-free",
+        "fallback_models": [
+          { "model": "deepseek/deepseek-v4.1-flash-expires-on-0910" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" }
+        ]
+      },
+      "librarian": {
+        "model": "opencode/ling-3.0-flash-fin-free",
+        "fallback_models": [
+          { "model": "zhipuai/glm-4.7-flash" },
+          { "model": "zhipuai/glm-4.7" }
+        ]
+      },
+      "explore": {
+        "model": "opencode/ling-3.0-flash-fin-free",
+        "fallback_models": [
+          { "model": "deepseek/deepseek-v4.1-flash-expires-on-0910" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "zhipuai/glm-4.7-flash" }
+        ]
+      },
+      "multimodal-looker": {
+        "model": "opencode/mimo-v2.5-free",
+        "fallback_models": [
+          { "model": "deepseek/deepseek-v4.1-flash-expires-on-0910" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "zhipuai/glm-5.3", "variant": "low" }
+        ]
+      },
+      "prometheus": {
+        "model": "deepseek/deepseek-v4.1-flash-expires-on-0910",
+        "fallback_models": [
+          { "model": "opencode/nemotron-3-ultra-free" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "zhipuai/glm-5.3" }
+        ]
+      },
+      "metis": {
+        "model": "opencode/big-pickle",
+        "fallback_models": [
+          { "model": "opencode/nemotron-3-ultra-free" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "zhipuai/glm-5.3", "variant": "high" }
+        ]
+      },
+      "momus": {
+        "model": "opencode/big-pickle",
+        "fallback_models": [
+          { "model": "opencode/nemotron-3-ultra-free" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "zhipuai/glm-5.3", "variant": "max" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" }
+        ]
+      },
+      "atlas": {
+        "model": "deepseek/deepseek-v4.1-flash-expires-on-0910",
+        "fallback_models": [
+          { "model": "opencode/big-pickle" },
+          { "model": "deepseek/deepseek-v4.1-flash-expires-on-0910" },
+          { "model": "zhipuai/glm-5.3" }
+        ]
+      },
+      "sisyphus-junior": {
+        "model": "opencode/nemotron-3.5-lightning-free",
+        "fallback_models": [
+          { "model": "deepseek/deepseek-v4.1-flash-expires-on-0910" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "zhipuai/glm-4.7" }
+        ]
+      }
+    },
+    "categories": {
+      "visual-engineering": {
+        "model": "opencode/mimo-v2.5-free",
+        "fallback_models": [
+          { "model": "deepseek/deepseek-v4.1-flash-expires-on-0910" },
+          { "model": "zhipuai/glm-5.3", "variant": "max" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" }
+        ]
+      },
+      "ultrabrain": {
+        "model": "opencode/nemotron-3-ultra-free",
+        "fallback_models": [
+          { "model": "deepseek/deepseek-v4.1-flash-expires-on-0910" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "zhipuai/glm-5.3", "variant": "max" }
+        ]
+      },
+      "deep": {
+        "model": "opencode/big-pickle",
+        "fallback_models": [
+          { "model": "opencode/nemotron-3-ultra-free" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" }
+        ]
+      },
+      "artistry": {
+        "model": "deepseek/deepseek-v4.1-flash-expires-on-0910",
+        "fallback_models": [
+          { "model": "opencode/mimo-v2.5-free" },
+          { "model": "zhipuai/glm-5.3", "variant": "high" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" }
+        ]
+      },
+      "quick": {
+        "model": "opencode/ling-3.0-flash-fin-free",
+        "fallback_models": [
+          { "model": "zhipuai/glm-4.7-flash" }
+        ]
+      },
+      "unspecified-low": {
+        "model": "opencode/ling-3.0-flash-fin-free",
+        "fallback_models": [
+          { "model": "deepseek/deepseek-v4.1-flash-expires-on-0910" },
+          { "model": "zhipuai/glm-4.7" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" }
+        ],
+        "variant": "high"
+      },
+      "unspecified-high": {
+        "model": "deepseek/deepseek-v4.1-flash-expires-on-0910",
+        "fallback_models": [
+          { "model": "opencode/nemotron-3-ultra-free" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" },
+          { "model": "zhipuai/glm-5.3" }
+        ]
+      },
+      "writing": {
+        "model": "deepseek/deepseek-v4.1-flash-expires-on-0910",
+        "fallback_models": [
+          { "model": "zhipuai/glm-5.3" },
+          { "model": "zhipuai/glm-4.7" },
+          { "model": "deepseek/deepseek-v4-flash", "variant": "high" }
+        ]
+      }
+    }
+  }
+}
