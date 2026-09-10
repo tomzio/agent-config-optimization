@@ -10,17 +10,21 @@
 
 ### 1. 一键安装（推荐）
 
+#### macOS / Linux
 ```bash
-# macOS / Linux
 curl -fsSL https://raw.githubusercontent.com/tomzio/agent-config-optimization/main/config/omo-schemes/install.sh | bash
+```
 
-# Windows PowerShell
+#### Windows PowerShell
+```powershell
 irm https://raw.githubusercontent.com/tomzio/agent-config-optimization/main/config/omo-schemes/install.ps1 | iex
 ```
 
+> ⚠️ **curl|bash / irm|iex 在非交互场景下会自动退出**。`read` 拿不到 stdin 会立即 EOF，配合 `set -e` 触发 exit 1。安装脚本已做 TTY 检测，非 TTY 场景会自动降级为「仅下载模式」。如想交互选方案，请直接下载脚本后 `./install.sh` 运行。
+
 安装脚本会自动：
 1. 下载所有方案文件到 `~/.config/opencode/omo-schemes/`
-2. 运行 `test_switch.py` 验证（9 项测试）
+2. 运行 `test_switch.py` 验证（10 项测试）
 3. 交互式菜单选择方案
 4. 切换前调用 `validate_config.py` 校验，失败则取消切换
 
@@ -50,7 +54,7 @@ opencode auth login   # 依次添加 deepseek / zhipuai
 python3 ~/.config/opencode/omo-schemes/switch.py list              # 列出可用方案
 python3 ~/.config/opencode/omo-schemes/switch.py switch 2          # 切换到方案 2（推荐）
 python3 ~/.config/opencode/omo-schemes/validate_config.py <file>   # 手动校验
-python3 ~/.config/opencode/omo-schemes/test_switch.py              # 跑 9 项测试
+python3 ~/.config/opencode/omo-schemes/test_switch.py              # 跑 10 项测试
 ```
 
 ## 方案对比
@@ -59,7 +63,7 @@ python3 ~/.config/opencode/omo-schemes/test_switch.py              # 跑 9 项�
 |---|---|---|
 | **Scheme 1** 免费优先 | opencode 免费 → 套餐 → GLM → deepseek 兜底 | 套餐额度紧张、想最大化免费模型 |
 | **Scheme 2** 套餐优先 + 角色分层（推荐） | 见 [docs/routing.md](docs/routing.md) | 套餐充足、追求稳定、按角色能力匹配 |
-| **Scheme 3** 纯免费（零成本） | 仅用 opencode 免费模型，无任何付费调用 | 个人体验、学习、零成本开发 |
+| **Scheme 3** 纯免费（零成本） | 全部 opencode 免费模型，按角色能力分层 | 付费额度耗尽、压测免费上限、拒绝任何按量调用 |
 
 详细方案对比见 `config/omo-schemes/README.md`。
 
@@ -69,8 +73,8 @@ python3 ~/.config/opencode/omo-schemes/test_switch.py              # 跑 9 项�
 |---|---|
 | `switch.py` | 方案切换（带备份、自动校验） |
 | `validate_config.py` | 独立配置格式校验（语法 / 模型引用 / variant） |
-| `test_switch.py` | 切换脚本 9 项回归测试 |
-| `install.sh` / `install.ps1` | 一键安装 |
+| `test_switch.py` | 切换脚本 10 项回归测试 |
+| `install.sh` / `install.ps1` | 一键安装（带 TTY 检测，非交互场景降级为仅下载） |
 | `preflight-checker.py` | 启动前环境检查 |
 | `quota-fallback-wrapper.js` | 套餐配额耗尽时降级包装器 |
 
@@ -101,7 +105,7 @@ python3 ~/.config/opencode/omo-schemes/test_switch.py              # 跑 9 项�
 
 ## 踩坑记录
 
-- **`curl ... | bash` 跑 `install.sh` 会自动退出，不更新 `~/.omo/omo.jsonc`**。原因：管道把脚本内容作为 stdin 喂给 bash，`read` 在 TTY 不可用时拿到 EOF 触发 `set -e` 退出。修复：v1.3+ 在脚本内检测非 TTY 时降级为「仅下载模式」并提示用户在终端重跑。**永远不要 curl | bash 一键安装，要么先 `curl -O` 下载再 `bash`，要么接受「下载后手动切方案」**。
+- **`curl | bash` / `irm | iex` 在非交互场景下会自动退出**。`read` 拿不到 stdin 会立即 EOF，配合 `set -e` 触发 exit 1，导致配置根本没切换。本仓库安装脚本已做 TTY 检测，非交互场景自动降级为「仅下载模式」并提示重跑命令。
 - **模型 ID 必须逐字核对**。写不存在的模型（如给 `big-pickle` 加 `-free` 后缀）会让 Agent 立即抛 `ProviderModelNotFoundError`，后台任务 0 秒失败、难以察觉。**用 `opencode models` 取实际目录**。
 - **`opencode.json` 的 `agent.*.model` 覆盖优先级高于 OmO 配置**，改了 `omo.jsonc` 不生效时先检查这里。
 - **顶层键 `plugins` 不存在**，正确的是 `plugin`，写错会被静默忽略。
