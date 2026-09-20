@@ -32,6 +32,11 @@ SCHEMES = {
         "file": "scheme3-free-only.jsonc",
         "desc": "纯免费(零成本) — 仅用 opencode 免费模型，套餐/按量全不用\n适用：拒绝任何按量调用、压测免费上限、临时额度用尽",
     },
+    "4": {
+        "name": "scheme4-go-first",
+        "file": "scheme4-go-first.jsonc",
+        "desc": "Opencode Go 套餐优先 — 主链全走 opencode-go 订阅(26模型)，免费模型末位兜底\n适用：已订阅 Opencode Go($20/月)，订阅内零按量费，套餐版 muse-spark 国内可达",
+    },
 }
 
 def strip_jsonc(content: str) -> str:
@@ -109,7 +114,9 @@ def show_current() -> None:
 
     try:
         content = TARGET_OMO.read_text(encoding="utf-8")
-        if "scheme3" in content.lower() or "纯免费" in content:
+        if "opencode-go/" in content:
+            print("📌 当前方案: Scheme 4 (Opencode Go 套餐优先)")
+        elif "scheme3" in content.lower() or "纯免费" in content:
             print("📌 当前方案: Scheme 3 (纯免费，零成本)")
         elif "免费(opencode)" in content and "coding-plan 套餐" in content:
             if content.index("免费(opencode)") < content.index("coding-plan 套餐"):
@@ -139,13 +146,14 @@ def main():
 用法:
   python switch.py list              # 列出所有方案
   python switch.py current           # 显示当前方案
-  python switch.py check <1|2|3>     # 校验方案配置（不切换）
-  python switch.py switch <1|2|3>    # 切换到指定方案
+  python switch.py check <1|2|3|4>   # 校验方案配置（不切换）
+  python switch.py switch <1|2|3|4>  # 切换到指定方案
 
 方案:
   1 - Scheme 1: 免费优先（参考 a0fa618）
   2 - Scheme 2: 套餐优先+provider隔离（参考 a32b23c，当前推荐）
   3 - Scheme 3: 纯免费(零成本，仅用 opencode 免费模型)
+  4 - Scheme 4: Opencode Go 套餐优先(订阅内零按量费，免费模型兜底)
 
 示例:
   python switch.py switch 2
@@ -161,7 +169,7 @@ def main():
         show_current()
     elif cmd == "check":
         if len(sys.argv) < 3:
-            print("❌ 请指定方案 ID: python switch.py check <1|2|3>")
+            print("❌ 请指定方案 ID: python switch.py check <1|2|3|4>")
             return
         scheme_id = sys.argv[2]
         if scheme_id in SCHEMES:
@@ -172,7 +180,7 @@ def main():
             print(f"❌ 无效方案 ID: {scheme_id}")
     elif cmd == "switch":
         if len(sys.argv) < 3:
-            print("❌ 请指定方案 ID: python switch.py switch <1|2|3>")
+            print("❌ 请指定方案 ID: python switch.py switch <1|2|3|4>")
             return
         if not switch_scheme(sys.argv[2]):
             sys.exit(1)

@@ -44,6 +44,7 @@ function Download-Schemes {
         "scheme1-free-first.jsonc",
         "scheme2-plan-first.jsonc",
         "scheme3-free-only.jsonc",
+        "scheme4-go-first.jsonc",
         "switch.py",
         "switch.bat",
         "test_switch.py",
@@ -93,7 +94,11 @@ function Show-Menu {
     Write-Host "     仅用 opencode 免费模型，套餐/按量全不用" -ForegroundColor Gray
     Write-Host "     适用: 拒绝任何按量调用、压测免费上限、临时额度用尽" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  4) 仅下载文件，不切换配置" -ForegroundColor White
+    Write-Host "  4) Scheme 4: Opencode Go 套餐优先 (推荐 Go 订阅用户)" -ForegroundColor White
+    Write-Host "     opencode-go 订阅全模型 → opencode 免费兜底，零按量费用" -ForegroundColor Gray
+    Write-Host "     适用: 已订阅 Opencode Go、想用套餐内 GLM/Kimi/DeepSeek/GPT/Grok/Qwen 全家桶" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  5) 仅下载文件，不切换配置" -ForegroundColor White
     Write-Host ""
     Write-Host "  q) 退出" -ForegroundColor White
     Write-Host ""
@@ -121,6 +126,7 @@ function Validate-Config {
         '1' { 'free-first' }
         '2' { 'plan-first' }
         '3' { 'free-only' }
+        '4' { 'go-first' }
         default { $null }
     }
     if ($null -eq $slug) {
@@ -179,17 +185,18 @@ while ($true) {
         Write-Info "已下载文件到: $installDir"
         Write-Info "请在 PowerShell 中重新运行安装以选择方案："
         Write-Info "  & $installDir\install.ps1"
-        Write-Info "或手动切换: python3 $installDir\switch.py switch <1|2|3>"
+        Write-Info "或手动切换: python3 $installDir\switch.py switch <1|2|3|4>"
         break
     }
-    $choice = Read-Host "请选择方案 [1/2/3/4/q]"
+    $choice = Read-Host "请选择方案 [1/2/3/4/5/q]"
     switch ($choice) {
         "1" { Switch-Scheme -SchemeId "1" -InstallDir $installDir; break }
         "2" { Switch-Scheme -SchemeId "2" -InstallDir $installDir; break }
         "3" { Switch-Scheme -SchemeId "3" -InstallDir $installDir; break }
-        "4" {
+        "4" { Switch-Scheme -SchemeId "4" -InstallDir $installDir; break }
+        "5" {
             Write-Info "已下载文件到: $installDir"
-            Write-Info "稍后可手动运行: python3 $installDir\switch.py switch <1|2|3>"
+            Write-Info "稍后可手动运行: python3 $installDir\switch.py switch <1|2|3|4>"
             break
         }
         "q" { Write-Info "已取消"; exit 0 }
@@ -204,6 +211,6 @@ Write-Host ""
 Write-Host "后续操作:"
 Write-Host "  1. 重启 OpenCode 使配置生效"
 Write-Host "  2. 验证: 在 OpenCode 中运行 /model 查看模型列表"
-Write-Host "  3. 切换方案: python3 $installDir\switch.py switch <1|2|3>"
+Write-Host "  3. 切换方案: python3 $installDir\switch.py switch <1|2|3|4>"
 Write-Host "  4. 查看文档: $installDir\README.md"
 Write-Host ""

@@ -19,6 +19,7 @@ ALL_SCHEMES = [
     ("1", "free-first"),
     ("2", "plan-first"),
     ("3", "free-only"),
+    ("4", "go-first"),
 ]
 
 
@@ -181,6 +182,7 @@ def test_scheme_differentiation():
         ("1", "opencode/"),
         ("2", "coding-plan/"),
         ("3", "opencode/"),
+        ("4", "opencode-go/"),
     ]:
         content = scheme_path(scheme_id).read_text(encoding="utf-8")
         content = strip_jsonc(content)
@@ -237,6 +239,34 @@ def test_scheme_differentiation():
     ]
     assert not external_refs, (
         f"方案 3 应零外部依赖（不引用 coding-plan/zhipuai/deepseek 官方），但发现: {external_refs}"
+    )
+
+    # 方案 4 验证主链走 opencode-go 订阅，零按量依赖（不引用 coding-plan/zhipuai/deepseek 官方）
+    content4 = scheme_path("4").read_text(encoding="utf-8")
+    data4 = json.loads(strip_jsonc(content4))
+
+    refs4 = []
+    def extract4(obj):
+        if isinstance(obj, dict):
+            if "model" in obj:
+                refs4.append(obj["model"])
+            for v in obj.values():
+                extract4(v)
+        elif isinstance(obj, list):
+            for v in obj:
+                extract4(v)
+    extract4(data4)
+
+    go_refs = [m for m in refs4 if m.startswith("opencode-go/")]
+    assert go_refs, "方案 4 应使用 opencode-go 订阅模型"
+    paid_refs = [
+        m for m in refs4
+        if m.startswith("coding-plan/")
+        or m.startswith("zhipuai/")
+        or m.startswith("deepseek/")
+    ]
+    assert not paid_refs, (
+        f"方案 4 应零按量依赖（不引用 coding-plan/zhipuai/deepseek 官方），但发现: {paid_refs}"
     )
 
     print("  ✅ 通过")

@@ -50,6 +50,7 @@ download_schemes() {
         "scheme1-free-first.jsonc"
         "scheme2-plan-first.jsonc"
         "scheme3-free-only.jsonc"
+        "scheme4-go-first.jsonc"
         "switch.py"
         "switch.bat"
         "test_switch.py"
@@ -90,7 +91,11 @@ show_menu() {
     echo "     仅用 opencode 免费模型，套餐/按量全不用"
     echo "     适用: 拒绝任何按量调用、压测免费上限、临时额度用尽"
     echo
-    echo "  4) 仅下载文件，不切换配置"
+    echo "  4) Scheme 4: Opencode Go 套餐优先 (推荐 Go 订阅用户)"
+    echo "     opencode-go 订阅全模型 → opencode 免费兜底，零按量费用"
+    echo "     适用: 已订阅 Opencode Go、想用套餐内 GLM/Kimi/DeepSeek/GPT/Grok/Qwen 全家桶"
+    echo
+    echo "  5) 仅下载文件，不切换配置"
     echo
     echo "  q) 退出"
     echo
@@ -137,6 +142,7 @@ validate_config() {
         1) slug="free-first" ;;
         2) slug="plan-first" ;;
         3) slug="free-only" ;;
+        4) slug="go-first" ;;
         *) log_error "未知方案 ID: ${scheme_id}"; return 1 ;;
     esac
     local scheme_file="${INSTALL_DIR}/scheme${scheme_id}-${slug}.jsonc"
@@ -182,7 +188,7 @@ main() {
     # 兼容 curl | bash 场景：read 时显式从 /dev/tty 取输入，避免被 curl 管道占用
     while true; do
         show_menu
-        if ! choice=$(read_choice "请选择方案 [1/2/3/4/q]: "); then
+        if ! choice=$(read_choice "请选择方案 [1/2/3/4/5/q]: "); then
             # 无 TTY 可读（curl | bash 且 TTY 未重定向），降级为「仅下载模式」
             log_warn "未检测到交互终端（curl | bash 场景）"
             log_info "已下载文件到: ${INSTALL_DIR}"
@@ -205,8 +211,12 @@ main() {
                 break
                 ;;
             4)
+                switch_scheme "4"
+                break
+                ;;
+            5)
                 log_info "已下载文件到: ${INSTALL_DIR}"
-                log_info "稍后可手动运行: python3 ${INSTALL_DIR}/switch.py switch <1|2|3>"
+                log_info "稍后可手动运行: python3 ${INSTALL_DIR}/switch.py switch <1|2|3|4>"
                 break
                 ;;
             q|Q)
@@ -225,7 +235,7 @@ main() {
     echo "后续操作:"
     echo "  1. 重启 OpenCode 使配置生效"
     echo "  2. 验证: 在 OpenCode 中运行 /model 查看模型列表"
-    echo "  3. 切换方案: python3 ${INSTALL_DIR}/switch.py switch <1|2|3>"
+    echo "  3. 切换方案: python3 ${INSTALL_DIR}/switch.py switch <1|2|3|4>"
     echo "  4. 查看文档: ${INSTALL_DIR}/README.md"
     echo
 }

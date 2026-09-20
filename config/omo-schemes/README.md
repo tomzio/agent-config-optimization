@@ -21,7 +21,7 @@ irm https://raw.githubusercontent.com/tomzio/agent-config-optimization/main/conf
 脚本会自动：
 1. 下载全部工具到 `~/.config/opencode/omo-schemes/`
 2. 运行测试套件（9/9）验证安装
-3. 弹出菜单让你选择方案（1 / 2 / 3 / 4 / q）
+3. 弹出菜单让你选择方案（1 / 2 / 3 / 4 / 5 / q，5 = 仅下载）
 4. 切换方案前自动做 **配置格式验证**（JSONC 语法 + 模型引用合法性），通过才应用
 5. 切换时会自动**备份**当前 `~/.omo/omo.jsonc` 到 `~/.omo/backups/`
 
@@ -34,8 +34,10 @@ irm https://raw.githubusercontent.com/tomzio/agent-config-optimization/main/conf
 | **1** | Scheme 1 免费优先 | 免费 → coding-plan 套餐 → zhipuai GLM → deepseek（末位） |
 | **2** | Scheme 2 套餐优先+隔离（推荐） | coding-plan → **deepseek 官方独立配额** → 免费 → zhipuai → deepseek（末位） |
 | **3** | Scheme 3 纯免费（零成本） | opencode 免费 4 层降级（无任何付费调用） |
+| **4** | Scheme 4 Go 套餐优先（Go 订阅推荐） | opencode-go 订阅全模型 → opencode 免费兜底（零按量费） |
 
-> 💡 日常推荐 **方案 2**：通过 Provider 隔离让 deepseek 走官方独立配额，套餐耗尽也不影响它，彻底解决 fallback 不触发问题。
+> 💡 已订阅 **Opencode Go** 选 **方案 4**：套餐内 GLM / Kimi / DeepSeek / GPT / Grok / Qwen 全家桶，且套餐版 muse-spark 国内可达。
+> 仅用火山 coding-plan 套餐选 **方案 2**：通过 Provider 隔离让 deepseek 走官方独立配额，套餐耗尽也不影响它。
 > 方案 3 适合**完全不想产生任何付费调用**的场景（个人体验/学习/零成本开发）。
 
 ### 3️⃣ 切换后验证
@@ -75,8 +77,8 @@ cd ~/.config/opencode/omo-schemes && python3 switch.py switch 2
 ```bash
 python3 switch.py list       # 列出所有可用方案
 python3 switch.py current    # 查看当前生效方案
-python3 switch.py check <1|2> # 校验指定方案（不切换）
-python3 switch.py switch <1|2> # 切换方案
+python3 switch.py check <1|2|3|4> # 校验指定方案（不切换）
+python3 switch.py switch <1|2|3|4> # 切换方案
 ```
 
 ### 手动校验配置（独立脚本）
@@ -92,13 +94,14 @@ python3 ~/.config/opencode/omo-schemes/validate_config.py ~/.config/opencode/omo
 
 ## 📦 方案对比
 
-| 维度 | Scheme 1：免费优先 | Scheme 2：套餐优先+隔离 | Scheme 3：纯免费 |
-|------|-------------------|----------------------|----------------|
-| 分层顺序 | 免费 → coding-plan → zhipuai → deepseek | coding-plan → **deepseek官方** → 免费 → zhipuai → deepseek末位 | opencode 免费 4 层降级（无付费调用） |
-| 核心优势 | 最大化省配额 | **deepseek 独立配额**，套餐耗尽不影响 | **零成本**，完全无付费风险 |
-| 适用场景 | 套餐紧张 | 套餐充足、生产环境、追求稳定 | 个人体验、学习、零成本开发 |
-| muse-spark | 主力（需代理） | **已剔除**（国内不可访问） | **已剔除**（国内不可访问） |
-| 参考 Commit | `a0fa618` | `a32b23c` | Scheme 3 扩展 |
+| 维度 | Scheme 1：免费优先 | Scheme 2：套餐优先+隔离 | Scheme 3：纯免费 | Scheme 4：Go 套餐优先 |
+|------|-------------------|----------------------|----------------|---------------------|
+| 分层顺序 | 免费 → coding-plan → zhipuai → deepseek | coding-plan → **deepseek官方** → 免费 → zhipuai → deepseek末位 | opencode 免费 4 层降级（无付费调用） | **opencode-go 订阅全模型** → opencode 免费兜底 |
+| 核心优势 | 最大化省配额 | **deepseek 独立配额**，套餐耗尽不影响 | **零成本**，完全无付费风险 | 一个 Go 订阅覆盖多厂商旗舰，零按量费 |
+| 适用场景 | coding-plan 套餐紧张 | coding-plan 套餐充足、生产环境、追求稳定 | 个人体验、学习、零成本开发 | 已订阅 Opencode Go |
+| muse-spark | 主力（需代理） | **已剔除**（免费版国内不可访问） | **已剔除**（国内不可访问） | ✅ 用 **Go 套餐版**（国内可达） |
+| 按量付费风险 | 有（链尾 GLM/deepseek） | 有（链尾 GLM/deepseek） | **无** | **无**（订阅内 + 免费兜底） |
+| 参考 Commit | `a0fa618` | `a32b23c` | Scheme 3 扩展 | Scheme 4 扩展 |
 
 ---
 
@@ -107,7 +110,7 @@ python3 ~/.config/opencode/omo-schemes/validate_config.py ~/.config/opencode/omo
 | 工具 | 用途 |
 |------|------|
 | `switch.py` / `switch.bat` | 跨平台方案切换 |
-| `test_switch.py` | 自动化测试套件（9/9） |
+| `test_switch.py` | 自动化测试套件（10/10） |
 | `validate_config.py` | 配置格式验证（语法/模型引用/variant） |
 | `quota-fallback-wrapper.js` | Provider Wrapper 拦截 429 触发 fallback |
 | `preflight-checker.py` | Pre-flight 配额检查（5min 缓存） |
@@ -140,6 +143,7 @@ config/omo-schemes/
 ├── scheme1-free-first.jsonc        # 方案 1：免费优先
 ├── scheme2-plan-first.jsonc        # 方案 2：套餐优先+隔离（推荐）
 ├── scheme3-free-only.jsonc         # 方案 3：纯免费（零成本）
+├── scheme4-go-first.jsonc          # 方案 4：Opencode Go 套餐优先
 ├── switch.py / switch.bat          # 切换工具
 ├── install.sh / install.ps1        # 一键安装
 ├── test_switch.py                  # 测试
@@ -158,6 +162,8 @@ config/omo-schemes/
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 1.4 | 2026-09-20 | 新增 Scheme 4（Opencode Go 套餐优先）；限时免费的 v4.1-flash-expires-on-0910 到期下线，由 opencode-go/deepseek-v4.1-flash 继任 |
+| 1.3 | 2026-09-10 | 新增 Scheme 3（纯免费）；修正全部失效模型 ID 与非法 variant |
 | 1.2 | 2026-09-07 | 新增 `validate_config.py` 独立校验脚本并集成到安装流程；README 重排使用方法 |
 | 1.1 | 2026-09-06 | 新增一键安装脚本、完善文档、完整测试覆盖 |
 | 1.0 | 2026-09-06 | 初始版本 |

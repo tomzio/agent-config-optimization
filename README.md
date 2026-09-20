@@ -62,8 +62,9 @@ python3 ~/.config/opencode/omo-schemes/test_switch.py              # 跑 10 项�
 | 方案 | 主策略 | 适用场景 |
 |---|---|---|
 | **Scheme 1** 免费优先 | opencode 免费 → 套餐 → GLM → deepseek 兜底 | 套餐额度紧张、想最大化免费模型 |
-| **Scheme 2** 套餐优先 + 角色分层（推荐） | 见 [docs/routing.md](docs/routing.md) | 套餐充足、追求稳定、按角色能力匹配 |
+| **Scheme 2** 套餐优先 + 角色分层 | 见 [docs/routing.md](docs/routing.md) | 火山 coding-plan 套餐充足、追求稳定、按角色能力匹配 |
 | **Scheme 3** 纯免费（零成本） | 全部 opencode 免费模型，按角色能力分层 | 付费额度耗尽、压测免费上限、拒绝任何按量调用 |
+| **Scheme 4** Opencode Go 套餐优先（Go 订阅推荐） | opencode-go 订阅全模型 → opencode 免费兜底，零按量费 | 已订阅 Opencode Go，想用套餐内 GLM/Kimi/DeepSeek/GPT/Grok/Qwen 全家桶 |
 
 详细方案对比见 `config/omo-schemes/README.md`。
 
@@ -94,6 +95,7 @@ python3 ~/.config/opencode/omo-schemes/test_switch.py              # 跑 10 项�
         ├── scheme1-free-first.jsonc
         ├── scheme2-plan-first.jsonc
         ├── scheme3-free-only.jsonc
+        ├── scheme4-go-first.jsonc
         ├── switch.py / switch.bat
         ├── validate_config.py
         ├── test_switch.py
