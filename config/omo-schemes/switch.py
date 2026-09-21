@@ -106,27 +106,79 @@ def switch_scheme(scheme_id: str, dry_run: bool = False) -> bool:
     print("🔄 请重启 OpenCode 使配置生效")
     return True
 
+def _load_jsonc(path: Path) -> dict:
+    """剥离 JSONC 注释/尾逗号后解析为 dict；失败抛异常"""
+    content = path.read_text(encoding="utf-8")
+    content = re.sub(r"^\s*//.*$", "", content, flags=re.M)
+    content = re.sub(r",(\s*[}\]])", r"\1", content)
+    return json.loads(content)
+
+
+def _collect_models(data: dict) -> list:
+    """递归收集配置中所有 model 引用"""
+    refs: list[str] = []
+
+    def walk(obj) -> None:
+        if isinstance(obj, dict):
+            if "model" in obj:
+                refs.append(obj["model"])
+            for val in obj.values():
+                walk(val)
+        elif isinstance(obj, list):
+            for val in obj:
+                walk(val)
+
+    walk(data)
+    return refs
+
+
+def _scheme_fingerprint(path: Path) -> tuple:
+    """方案指纹：(sisyphus 主模型, 是否零付费 provider)"""
+    data = _load_jsonc(path)
+    sisyphus_main = data["[opencode]"]["agents"]["sisyphus"]["model"]
+    paid = any(
+        ref.startswith(("coding-plan/", "zhipuai/", "deepseek/"))
+        for ref in _collect_models(data)
+    )
+    return sisyphus_main, not paid
+
+
 def show_current() -> None:
-    """显示当前配置信息"""
+    """显示当前配置信息（结构化指纹匹配，避免子串启发式误判）"""
     if not TARGET_OMO.exists():
         print("⚠️  当前无配置文件")
         return
 
+    labels = {
+        "1": "Scheme 1 (免费优先)",
+        "2": "Scheme 2 (套餐优先 + Provider 隔离)",
+        "3": "Scheme 3 (纯免费，零成本)",
+        "4": "Scheme 4 (Opencode Go 套餐优先)",
+    }
+
     try:
-        content = TARGET_OMO.read_text(encoding="utf-8")
-        if "opencode-go/" in content:
-            print("📌 当前方案: Scheme 4 (Opencode Go 套餐优先)")
-        elif "scheme3" in content.lower() or "纯免费" in content:
-            print("📌 当前方案: Scheme 3 (纯免费，零成本)")
-        elif "免费(opencode)" in content and "coding-plan 套餐" in content:
-            if content.index("免费(opencode)") < content.index("coding-plan 套餐"):
-                print("📌 当前方案: Scheme 1 (免费优先)")
-            else:
-                print("📌 当前方案: Scheme 2 (套餐优先，含 provider 隔离)")
-        else:
-            print("📌 当前方案: 自定义/未识别")
+        target_fp = _scheme_fingerprint(TARGET_OMO)
     except Exception:
-        print("📌 当前方案: 无法识别")
+        print("📌 当前方案: 无法识别（配置解析失败）")
+        return
+
+    matched: list[str] = []
+    for sid, info in SCHEMES.items():
+        src = SCHEMES_DIR / info["file"]
+        if not src.exists():
+            continue
+        try:
+            if _scheme_fingerprint(src) == target_fp:
+                matched.append(sid)
+        except Exception:
+            continue
+
+    if len(matched) == 1:
+        print(f"📌 当前方案: {labels[matched[0]]}")
+    elif matched:
+        print(f"📌 当前方案: 同时匹配 {'/'.join(labels[m] for m in matched)}")
+    else:
+        print("📌 当前方案: 自定义/未识别")
 
 def list_schemes() -> None:
     """列出所有可用方案"""
